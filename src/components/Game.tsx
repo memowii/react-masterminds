@@ -1,5 +1,7 @@
 import React from "react";
 
+import './Game.css'
+
 export const Mastermind = () => {
   const toggleActive = (e: React.MouseEvent): void => {
     e.preventDefault();
@@ -45,7 +47,7 @@ export const Mastermind = () => {
         <input
           type="number"
           className="form-control game-display"
-          placeholder="enter number"
+          placeholder="Enter number"
           defaultValue="0"
         />
       </div>
