@@ -10,9 +10,9 @@ import { GuessButton } from "./GuessButton";
 import { WinningGame } from "./WinningGame";
 
 export const Mastermind = () => {
-  const [guess, setGuess] = useState<number>(0);
+  const [userGuess, setUserGuess] = useState<number>(0);
   const [winnerGuess, setWinnerGuess] = useState<number>(generateWinnerGuess());
-  const [isThereWinner, setIsThereWinner] = useState<boolean>(true);
+  const [isThereWinner, setIsThereWinner] = useState<boolean>(false);
 
   const handleDifficultyChange = (e: React.MouseEvent): void => {
     e.preventDefault();
@@ -33,7 +33,7 @@ export const Mastermind = () => {
     target.classList.add("active");
 
     setWinnerGuess(generateWinnerGuess(target.dataset.difficulty as string));
-    setGuess(0);
+    setUserGuess(0);
   };
 
   function generateWinnerGuess(
@@ -64,13 +64,20 @@ export const Mastermind = () => {
     const parsedGuess = parseInt(guess, 10);
 
     if (parsedGuess && !isNaN(parsedGuess)) {
-      setGuess(parsedGuess);
+      setUserGuess(parsedGuess);
     }
   };
 
-  const handleEvaluateGuess = (e: React.MouseEvent) => {
-    if (guess === winnerGuess) {
+  const handleGuessClick = (e: React.MouseEvent): void => {
+    if (userGuess === winnerGuess) {
+      setIsThereWinner(true);
     }
+  };
+
+  const handlePlayAgain = (e: React.MouseEvent): void => {
+    setIsThereWinner(false);
+    setUserGuess(0);
+    setWinnerGuess(generateWinnerGuess());
   };
 
   return (
@@ -79,12 +86,12 @@ export const Mastermind = () => {
         <>
           <DifficultyPanel onDifficultyChange={handleDifficultyChange} />
 
-          <GuessInput guess={guess} onGuessChange={handleGuessChange} />
+          <GuessInput guess={userGuess} onGuessChange={handleGuessChange} />
 
-          <GuessButton onEvaluateGuess={handleEvaluateGuess} />
+          <GuessButton onEvaluateGuess={handleGuessClick} />
         </>
       ) : (
-        <WinningGame />
+        <WinningGame onPlayAgain={handlePlayAgain} />
       )}
     </>
   );
