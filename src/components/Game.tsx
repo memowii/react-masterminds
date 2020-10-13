@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import "./Game.css";
 import { getRandomInt } from "../utils";
 
-import { GameDifficulty } from "./GameEnums";
+import { GameDifficulty, DifficultyMaxValue } from "./GameEnums";
 import { DifficultyPanel } from "./DifficultyPanel";
 import { GuessInput } from "./GuessInput";
 import { GuessButton } from "./GuessButton";
@@ -12,6 +12,7 @@ import { WinningGame } from "./WinningGame";
 export const Mastermind = () => {
   const [userGuess, setUserGuess] = useState<number>(0);
   const [winnerGuess, setWinnerGuess] = useState<number>(generateWinnerGuess());
+  const [maxValue, setMaxValue] = useState<number>(DifficultyMaxValue.Easy);
   const [isThereWinner, setIsThereWinner] = useState<boolean>(false);
 
   const handleDifficultyChange = (e: React.MouseEvent): void => {
@@ -32,8 +33,17 @@ export const Mastermind = () => {
 
     target.classList.add("active");
 
-    setWinnerGuess(generateWinnerGuess(target.dataset.difficulty as string));
+    const { difficulty } = target.dataset;
+    setWinnerGuess(generateWinnerGuess(difficulty as string));
     setUserGuess(0);
+
+    if (difficulty === GameDifficulty.Easy) {
+      setMaxValue(DifficultyMaxValue.Easy);
+    } else if (difficulty === GameDifficulty.Medium) {
+      setMaxValue(DifficultyMaxValue.Medium);
+    } else {
+      setMaxValue(DifficultyMaxValue.Hard);
+    }
   };
 
   function generateWinnerGuess(
@@ -43,13 +53,13 @@ export const Mastermind = () => {
 
     switch (difficulty) {
       case GameDifficulty.Easy:
-        winnerGuess = getRandomInt(0, 10);
+        winnerGuess = getRandomInt(0, DifficultyMaxValue.Easy);
         break;
       case GameDifficulty.Medium:
-        winnerGuess = getRandomInt(0, 100);
+        winnerGuess = getRandomInt(0, DifficultyMaxValue.Medium);
         break;
       case GameDifficulty.Hard:
-        winnerGuess = getRandomInt(0, 1000);
+        winnerGuess = getRandomInt(0, DifficultyMaxValue.Hard);
         break;
       default:
         winnerGuess = 0;
@@ -71,7 +81,18 @@ export const Mastermind = () => {
   const handleGuessClick = (e: React.MouseEvent): void => {
     if (userGuess === winnerGuess) {
       setIsThereWinner(true);
+      return;
     }
+
+    const accuraccy = getAccuracy();
+    
+    // generate indicator
+    // generate sugestion
+  };
+
+  const getAccuracy = (): number => {
+    const difference = Math.abs(winnerGuess - userGuess);
+    return difference / maxValue;
   };
 
   const handlePlayAgain = (e: React.MouseEvent): void => {
