@@ -3,17 +3,18 @@ import React, { useState } from "react";
 import "./Game.css";
 import { getRandomInt } from "../utils";
 
-enum GameDifficulty {
-  Easy = "EASY",
-  Medium = "MEDIUM",
-  Hard = "HARD",
-}
+import { GameDifficulty } from "./GameEnums";
+import { DifficultyPanel } from "./DifficultyPanel";
+import { GuessInput } from "./GuessInput";
+import { GuessButton } from "./GuessButton";
+import { WinningGame } from "./WinningGame";
 
 export const Mastermind = () => {
   const [guess, setGuess] = useState<number>(0);
   const [winnerGuess, setWinnerGuess] = useState<number>(generateWinnerGuess());
+  const [isThereWinner, setIsThereWinner] = useState<boolean>(true);
 
-  const toggleActive = (e: React.MouseEvent): void => {
+  const handleDifficultyChange = (e: React.MouseEvent): void => {
     e.preventDefault();
 
     const target = e.target as HTMLAnchorElement;
@@ -31,9 +32,8 @@ export const Mastermind = () => {
 
     target.classList.add("active");
 
-    console.log("target.dataset.difficulty", target.dataset.difficulty);
-
     setWinnerGuess(generateWinnerGuess(target.dataset.difficulty as string));
+    setGuess(0);
   };
 
   function generateWinnerGuess(
@@ -43,15 +43,12 @@ export const Mastermind = () => {
 
     switch (difficulty) {
       case GameDifficulty.Easy:
-        console.log("easy");
         winnerGuess = getRandomInt(0, 10);
         break;
       case GameDifficulty.Medium:
-        console.log("med");
         winnerGuess = getRandomInt(0, 100);
         break;
       case GameDifficulty.Hard:
-        console.log("hard");
         winnerGuess = getRandomInt(0, 1000);
         break;
       default:
@@ -61,54 +58,34 @@ export const Mastermind = () => {
     return winnerGuess;
   }
 
+  const handleGuessChange = (e: React.ChangeEvent): void => {
+    e.persist();
+    const guess = (e.target as HTMLInputElement).value;
+    const parsedGuess = parseInt(guess, 10);
+
+    if (parsedGuess && !isNaN(parsedGuess)) {
+      setGuess(parsedGuess);
+    }
+  };
+
+  const handleEvaluateGuess = (e: React.MouseEvent) => {
+    if (guess === winnerGuess) {
+    }
+  };
+
   return (
     <>
-      <div className="form-group">
-        <ul className="nav nav-pills nav-fill">
-          <li className="nav-item">
-            <a
-              href="/"
-              className="nav-link active"
-              data-difficulty={GameDifficulty.Easy}
-              onClick={toggleActive}
-            >
-              EASY
-            </a>
-          </li>
-          <li className="nav-item">
-            <a
-              href="/"
-              className="nav-link"
-              data-difficulty={GameDifficulty.Medium}
-              onClick={toggleActive}
-            >
-              MEDIUM
-            </a>
-          </li>
-          <li className="nav-item">
-            <a
-              href="/"
-              className="nav-link"
-              data-difficulty={GameDifficulty.Hard}
-              onClick={toggleActive}
-            >
-              HARD
-            </a>
-          </li>
-        </ul>
-      </div>
-      <div className="form-group">
-        <input
-          type="number"
-          className="form-control game-display"
-          placeholder="Enter number"
-          value={guess}
-          onChange={(e) => console.log(e)}
-        />
-      </div>
-      <div className="form-group">
-        <button className="btn btn-lg btn-success btn-block">GUESS</button>
-      </div>
+      {!isThereWinner ? (
+        <>
+          <DifficultyPanel onDifficultyChange={handleDifficultyChange} />
+
+          <GuessInput guess={guess} onGuessChange={handleGuessChange} />
+
+          <GuessButton onEvaluateGuess={handleEvaluateGuess} />
+        </>
+      ) : (
+        <WinningGame />
+      )}
     </>
   );
 };
