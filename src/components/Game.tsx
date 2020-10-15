@@ -8,12 +8,19 @@ import { DifficultyPanel } from "./DifficultyPanel";
 import { GuessInput } from "./GuessInput";
 import { GuessButton } from "./GuessButton";
 import { WinningGame } from "./WinningGame";
+import { GameIndicator } from "./GameIndicator";
+
+interface GameIndicatorI {
+  accuracy?: number;
+  suggestion?: string;
+}
 
 export const Mastermind = () => {
   const [userGuess, setUserGuess] = useState<number>(0);
   const [winnerGuess, setWinnerGuess] = useState<number>(generateWinnerGuess());
   const [maxValue, setMaxValue] = useState<number>(DifficultyMaxValue.Easy);
   const [isThereWinner, setIsThereWinner] = useState<boolean>(false);
+  const [indicatorProps, setIndicatorProps] = useState<GameIndicatorI>({});
 
   const handleDifficultyChange = (e: React.MouseEvent): void => {
     e.preventDefault();
@@ -36,6 +43,7 @@ export const Mastermind = () => {
     const { difficulty } = target.dataset;
     setWinnerGuess(generateWinnerGuess(difficulty as string));
     setUserGuess(0);
+    setIndicatorProps({});
 
     if (difficulty === GameDifficulty.Easy) {
       setMaxValue(DifficultyMaxValue.Easy);
@@ -84,21 +92,23 @@ export const Mastermind = () => {
       return;
     }
 
-    const accuraccy = getAccuracy();
-    
-    // generate indicator
-    // generate sugestion
+    const accuracy = getAccuracy();
+    const suggestion = userGuess > winnerGuess ? "smaller" : "bigger";
+
+    setIndicatorProps({
+      accuracy,
+      suggestion,
+    });
   };
 
-  const getAccuracy = (): number => {
-    const difference = Math.abs(winnerGuess - userGuess);
-    return difference / maxValue;
-  };
+  const getAccuracy = (): number =>
+    Math.abs(winnerGuess - userGuess) / maxValue;
 
   const handlePlayAgain = (e: React.MouseEvent): void => {
     setIsThereWinner(false);
     setUserGuess(0);
     setWinnerGuess(generateWinnerGuess());
+    setIndicatorProps({});
   };
 
   return (
@@ -110,6 +120,13 @@ export const Mastermind = () => {
           <GuessInput guess={userGuess} onGuessChange={handleGuessChange} />
 
           <GuessButton onEvaluateGuess={handleGuessClick} />
+
+          {Object.keys(indicatorProps).length > 0 && (
+            <GameIndicator
+              accuracy={indicatorProps.accuracy as number}
+              suggestion={indicatorProps.suggestion as string}
+            />
+          )}
         </>
       ) : (
         <WinningGame onPlayAgain={handlePlayAgain} />

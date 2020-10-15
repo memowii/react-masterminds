@@ -10,26 +10,26 @@
   text-align: center;
 }
 
-.indicator--blue.fa {
-  color: blue;
-}
-
-.indicator--red.fa {
+.indicator--red {
   color: red;
 }
 
-.indicator--orange.fa {
+.indicator--orange {
   color: orange;
 }
 
-.indicator--yellow.fa {
+.indicator--yellow {
   color: gold;
 }
 
-.indicator--green.fa {
+.indicator--green {
   color: green;
 }
 
-.indicator--cyan.fa {
+.indicator--cyan {
   color: #00c8fa;
+}
+
+.indicator--blue {
+  color: blue;
 }
